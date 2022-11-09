@@ -22,4 +22,4 @@ It's like Google and Bing, except by Cole and Jon c:
 
 ## Notes
 
-May need to edit repository once https://canvas.eee.uci.edu/courses/49839/pages/github-desktop-instruction becomes unrestricted to student access.
+~~May need to edit repository once https://canvas.eee.uci.edu/courses/49839/pages/github-desktop-instruction becomes unrestricted to student access.~~
