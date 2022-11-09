@@ -1,6 +1,11 @@
 # Coogle-and-Jing
 It's like Google and Bing, except by Cole and Jon c:
 
+## Before you start development...
+
+1. Download directory.zip from https://www.ics.uci.edu/~algol/teaching/informatics141cs121w2020/a3files/developer.zip
+2. Extract contents of directory.zip into repository (The 'DEV' folder should be at root).
+
 ## Important Information
 
 - Course: CS 121 Information Retrieval
