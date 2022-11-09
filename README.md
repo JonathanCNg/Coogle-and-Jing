@@ -5,7 +5,7 @@ It's like Google and Bing, except by Cole and Jon c:
 
 ### Get the directories!
 
-1. Download directory.zip from ![here](https://www.ics.uci.edu/~algol/teaching/informatics141cs121w2020/a3files/developer.zip).
+1. Download directory.zip from [here](https://www.ics.uci.edu/~algol/teaching/informatics141cs121w2020/a3files/developer.zip).
 2. Extract contents of directory.zip into repository (The `DEV` folder should be at root).
 
 ### Create virtual envrionment and install dependencies
