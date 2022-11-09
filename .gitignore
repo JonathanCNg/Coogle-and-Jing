@@ -1,3 +1,7 @@
 # Exclude virtual environment and the DEV directory
 .venv/
 DEV/
+
+# Other
+directory.zip
+index
