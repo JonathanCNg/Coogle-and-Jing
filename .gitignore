@@ -1,0 +1,3 @@
+# Exclude virtual environment and the DEV directory
+.venv/
+DEV/
