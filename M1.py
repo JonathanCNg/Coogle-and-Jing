@@ -25,7 +25,6 @@ for d in directs:
         f.close()
         soup = BeautifulSoup(data['content'], 'html.parser').get_text(' ', strip=True)
         tokens = nltk.word_tokenize(soup)
-        tokens = nltk.word_tokenize(data['content'])
         for token in tokens:
             token = ps.stem(token)
             if token in index.keys():
