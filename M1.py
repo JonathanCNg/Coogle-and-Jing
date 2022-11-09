@@ -1,10 +1,11 @@
 import os
 import json
 import nltk
+import pickle
 from bs4 import BeautifulSoup
 
 directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
-directs = ["www_informatics_uci_edu"]
+directs = ["www_cs_uci_edu"]
 
 for i in range(len(directs)):
     directs[i] = "DEV/" + directs[i]
@@ -22,27 +23,22 @@ for d in directs:
         f = open(d+"/"+fname, "r")
         data = json.load(f)
         f.close()
-        
-        soup = BeautifulSoup(data['content'], 'html.parser')
-        tokens = nltk.word_tokenize(soup.get_text(' ', strip=True))
-        print(data['content'])
-        print(data['url'])
-        print(tokens)
-        exit(0)
-#         tokens = nltk.word_tokenize(data['content'])
-#         for token in tokens:
-#             token = ps.stem(token)
-#             if token in index.keys():
-#                 if fname in index[token].keys():
-#                     index[token][fname] += 1
-#                 else:
-#                     index[token][fname] = 1
-#             else:
-#                 index[token] = {fname:1}
-#         print(fname, " is Indexed")
-#     print(d, " is done")
-# file = open("index", "wb")
-# pickle.dump(index, file)
-# file.close()
-# print(index)
+        soup = BeautifulSoup(data['content'], 'html.parser').get_text(' ', strip=True)
+        tokens = nltk.word_tokenize(soup)
+        tokens = nltk.word_tokenize(data['content'])
+        for token in tokens:
+            token = ps.stem(token)
+            if token in index.keys():
+                if fname in index[token].keys():
+                    index[token][fname] += 1
+                else:
+                    index[token][fname] = 1
+            else:
+                index[token] = {fname:1}
+        print(fname, " is Indexed")
+    print(d, " is done")
+file = open("index", "wb")
+pickle.dump(index, file)
+file.close()
+print(index)
 
