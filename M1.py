@@ -39,6 +39,6 @@ for d in directs:
 file = open("index", "wb")
 pickle.dump(index, file)
 file.close()
-print(index)
+# print(index)
 
 # TODO: Make tokenizer than works only for alphanumeric (NLTK includes symbols and contractions)
