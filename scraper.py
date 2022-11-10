@@ -89,7 +89,9 @@ def is_valid(url):
         if "action" in parameters and "download" in parameters["action"]:
             # print("🚫 Prevented a download at", url)
             return False
-
+        if "ical" in parameters and "1" in parameters["ical"]:
+            # print("🚫 Prevented ical download at", url)
+            return False
 
         allowed_subdomains = set(["ics", "cs", "informatics", "stat", "today"])
         allowed_today_path = "/department/information_computer_sciences/"
