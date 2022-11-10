@@ -10,7 +10,7 @@ It's like Google and Bing, except by Cole and Jon c:
 
 ### Create virtual envrionment and install dependencies
 
-1. Run `python -c venv .venv`
+1. Run `python -m venv .venv`
 2. Run `.venv\Scripts\activate`
 3. Run `python install -r requirements.txt`
 
