@@ -23,20 +23,19 @@ for d in directs:
         data = json.load(f)
         f.close()
         url = data['url']
-        soup = BeautifulSoup(data['content'], 'html.parser').get_text(' ', strip=True)
-        tokens = nltk.word_tokenize(soup)
-        for token in tokens:
-            token = ps.stem(token)
-            if token in index.keys():
-                if url in index[token].keys():
-                    index[token][url] += 1
+        if is_valid(url):
+            soup = BeautifulSoup(data['content'], 'html.parser').get_text(' ', strip=True)
+            tokens = nltk.word_tokenize(soup)
+            for token in tokens:
+                token = ps.stem(token)
+                if token in index.keys():
+                    if url in index[token].keys():
+                        index[token][url] += 1
+                    else:
+                        index[token][url] = 1
                 else:
-                    index[token][url] = 1
-            else:
-                index[token] = {url:1}
-                print(index)
-                exit(0)
-        print(fname, "AKA", url, " is Indexed")
+                    index[token] = {url:1}
+            print(fname, "AKA", url, " is Indexed")
     print(d, " is done")
 file = open("index", "wb")
 pickle.dump(index, file)
