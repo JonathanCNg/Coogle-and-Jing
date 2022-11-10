@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 from scraper import is_valid
 
 directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
-directs = ["www_cs_uci_edu"]
 
 for i in range(len(directs)):
     directs[i] = "DEV/" + directs[i]
@@ -35,6 +34,8 @@ for d in directs:
                         index[token][url] = 1
                 else:
                     index[token] = {url:1}
+            else:
+                print("skipping", url)
             print(fname, "AKA", url, " is Indexed")
     print(d, " is done")
 file = open("index", "wb")
