@@ -11,6 +11,7 @@ for i in range(len(directs)):
     directs[i] = "DEV/" + directs[i]
 
 index = {}
+page_count = {} # Key is a token, value is a set of urls
 
 ps = nltk.stem.PorterStemmer()
 
@@ -25,6 +26,12 @@ for d in directs:
         if is_valid(url):
             soup = BeautifulSoup(data['content'], 'html.parser').get_text(' ', strip=True)
             tokens = nltk.word_tokenize(soup)
+
+            if token not in page_count:
+                page_count[token] = {url}
+            else:
+                page_count[token].add(url)
+
             for token in tokens:
                 token = ps.stem(token)
                 if token in index.keys():
@@ -34,10 +41,16 @@ for d in directs:
                         index[token][url] = 1
                 else:
                     index[token] = {url:1}
-            else:
-                print("skipping", url)
-            print(fname, "AKA", url, " is Indexed")
-    print(d, " is done")
+            print(fname, "AKA", url, "is indexed")
+        else:
+            print("skipping", url)
+    print(d, "is done")
+
+for token in index:
+    idf = 1/len(page_count[token])
+    for url in token:
+        index[token][url] = index[token][url]*idf
+
 file = open("index", "wb")
 pickle.dump(index, file)
 file.close()
@@ -45,3 +58,4 @@ file.close()
 
 # TODO: Make tokenizer than works only for alphanumeric (NLTK includes symbols and contractions)
 # TODO: Figure out whether we're supposed to use is_valid and whether our is_valid is too aggressive
+# TODO: What happens when we use BeautifulSoup on non-HTML? 🤔
