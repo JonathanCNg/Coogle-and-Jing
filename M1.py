@@ -64,16 +64,26 @@ for d in directs:
             print("EXCEPTION THROWN: Tried", url, "got", e)
     print()
 
-for token in index:
-    idf = math.log(total_pages/len(page_count[token]))
-    for url in index[token]:
-        index[token][url] = index[token][url]/word_count[url]*idf
+# TODO: uncomment this after MS1 ("for MS1, add only the term frequency" )
+# for token in index:
+#     idf = math.log(total_pages/len(page_count[token]))
+#     for url in index[token]:
+#         index[token][url] = index[token][url]/word_count[url]*idf
 
 file = open("index", "wb")
 pickle.dump(index, file)
 file.close()
-with open("delete_me.json", "w") as f:
-    json.dump(index, f)
+# with open("delete_me.json", "w") as f:
+#     json.dump(index, f)
+with open("output.txt", "w") as f:
+    f.write("# of Indexed Documents: " + str(len(page_count)) + "\n")
+    f.write("# of Unique Tokens: " + str(len(index)) + "\n")
+    f.write("Size of Index on Disk: " + str(os.path.getsize("index")//1000) + " KB")
+
+with open("output.txt", "r") as f:
+    print("\n ~ STATS ~ ")
+    for line in f:
+        print(line, end="")
 
 # print(index)
 
