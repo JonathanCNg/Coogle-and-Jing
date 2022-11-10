@@ -1,6 +1,13 @@
 # Coogle-and-Jing
 It's like Google and Bing, except by Cole and Jon c:
 
+## Important Information
+
+- Course: CS 121 Information Retrieval
+- Project: Search Engine
+- Students: Jonathan Ng (46625880) and Cole Bonham (91926235)
+- Group: Search Engine 60
+
 ## Before you start development...
 
 ### Get the directories!
@@ -15,11 +22,7 @@ It's like Google and Bing, except by Cole and Jon c:
 3. Run `pip install -r requirements.txt`
 4. Press `Ctrl + Shift + P` and select `Python: Select Interpreter` and select the one that says `venv`
 
-## Important Information
 
-- Course: CS 121 Information Retrieval
-- Project: Search Engine
-- Students: Jonathan Ng (46625880) and Cole Bonham (91926235)
 
 ## Notes
 
