@@ -65,7 +65,7 @@ for token in index:
         index[token][url] = index[token][url]*idf
 
 file = open("index", "wb")
-# pickle.dump(index, file)
+pickle.dump(index, file)
 with open("delete_me.json", "w") as f:
     json.dump(index, f)
 
