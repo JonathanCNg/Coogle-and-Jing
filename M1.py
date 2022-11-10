@@ -44,3 +44,4 @@ file.close()
 # print(index)
 
 # TODO: Make tokenizer than works only for alphanumeric (NLTK includes symbols and contractions)
+# TODO: Figure out whether we're supposed to use is_valid and whether our is_valid is too aggressive
