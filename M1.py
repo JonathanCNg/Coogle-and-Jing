@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from scraper import is_valid
 
 directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
-directs = ["www-db_ics_uci_edu"]
+directs = os.listdir("DEV")
 
 for i in range(len(directs)):
     directs[i] = "DEV/" + directs[i]
@@ -18,7 +18,9 @@ ps = nltk.stem.PorterStemmer()
 
 for d in directs:
     directory = os.fsencode(d)
-    for file in os.listdir(directory):
+    counter = 0
+    files = os.listdir(directory)
+    for file in files:
         fname = os.fsdecode(file)
         f = open(d+"/"+fname, "r")
         data = json.load(f)
@@ -43,12 +45,16 @@ for d in directs:
                         index[token][url] = 1
                 else:
                     index[token] = {url:1}
-            print(fname, "AKA", url, "is indexed")
-        else:
-            print("skipping", url)
-    print(d, "is done")
-
-
+        counter += 1
+        # print("\r" + str(counter) + " " + fname + " AKA " + url + " is indexed".ljust(100)[:100], end="")
+        print("\r" + "{:<50}".format(d) + " | ", end="")
+        out_of_10 = counter*10//len(files)
+        for i in range(out_of_10):
+            print("# ", end="")
+        for i in range(10-out_of_10):
+            print("  ", end="")
+        print("| " + str(counter) + "/" + str(len(files)), end="")
+    print()
 
 for token in index:
     idf = 1/len(page_count[token])
