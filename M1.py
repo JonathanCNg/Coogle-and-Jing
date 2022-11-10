@@ -2,24 +2,28 @@ import os
 import json
 import nltk
 import pickle
+import math
 from bs4 import BeautifulSoup
 from scraper import is_valid
 
-directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
-directs = os.listdir("DEV")
+# directs = os.listdir("DEV")
+# directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
+directs = ["www-db_ics_uci_edu"]
 
 for i in range(len(directs)):
     directs[i] = "DEV/" + directs[i]
 
 index = {}
 page_count = {} # Key is a token, value is a set of urls
-
+total_pages = 0
+word_count = {}
 ps = nltk.stem.PorterStemmer()
 
 for d in directs:
     directory = os.fsencode(d)
     counter = 0
     files = os.listdir(directory)
+    total_pages += len(files)
     for file in files:
         fname = os.fsdecode(file)
         f = open(d+"/"+fname, "r")
@@ -30,6 +34,7 @@ for d in directs:
             if is_valid(url):
                 soup = BeautifulSoup(data['content'], 'html.parser').get_text(' ', strip=True)
                 tokens = nltk.word_tokenize(soup)
+                word_count[url] = len(tokens)
 
                 for token in tokens:
                     token = ps.stem(token)
@@ -60,16 +65,16 @@ for d in directs:
     print()
 
 for token in index:
-    idf = 1/len(page_count[token])
+    idf = math.log(total_pages/len(page_count[token]))
     for url in index[token]:
-        index[token][url] = index[token][url]*idf
+        index[token][url] = index[token][url]/word_count[url]*idf
 
 file = open("index", "wb")
 pickle.dump(index, file)
+file.close()
 with open("delete_me.json", "w") as f:
     json.dump(index, f)
 
-file.close()
 # print(index)
 
 # TODO: Make tokenizer than works only for alphanumeric (NLTK includes symbols and contractions)
