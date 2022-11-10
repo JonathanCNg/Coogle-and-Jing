@@ -8,3 +8,5 @@ index
 __pycache__
 delete_me.json
 output.txt
+*.zip
+*.pdf
