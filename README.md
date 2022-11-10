@@ -8,11 +8,12 @@ It's like Google and Bing, except by Cole and Jon c:
 1. Download `directory.zip` from [here](https://www.ics.uci.edu/~algol/teaching/informatics141cs121w2020/a3files/developer.zip).
 2. Extract contents of `directory.zip` into the repository (The `DEV/` folder should be at root).
 
-### Create virtual envrionment and install dependencies
+### Create virtual envrionment, install dependencies, and select the correct interpreter
 
 1. Run `python -m venv .venv`
 2. Run `.venv\Scripts\activate`
 3. Run `pip install -r requirements.txt`
+4. Press `Ctrl + Shift + P` and select `Python: Select Interpreter` and select the one that says `venv`
 
 ## Important Information
 
