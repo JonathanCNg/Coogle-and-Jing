@@ -6,6 +6,7 @@ import math
 from bs4 import BeautifulSoup
 from scraper import is_valid
 
+# Jon: Feel free to comment in whichever one you want. They're just different collections of domains, some smaller so that w can test easily.
 directs = os.listdir("DEV")
 # directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
 # directs = ["www-db_ics_uci_edu"]
@@ -51,7 +52,6 @@ for d in directs:
                     else:
                         index[token] = {url:1}
             counter += 1
-            # print("\r" + str(counter) + " " + fname + " AKA " + url + " is indexed".ljust(100)[:100], end="")
             print("\r" + "{:<50}".format(d) + "| ", end="")
             out_of_10 = counter*10//len(files)
             for i in range(out_of_10):
@@ -72,7 +72,7 @@ for d in directs:
 file = open("index", "wb")
 pickle.dump(index, file)
 file.close()
-# with open("delete_me.json", "w") as f:
+# with open("delete_me.json", "w") as f: # Jon: I commented this out because the output is so large, we cannot even view it. Feel free to uncomment for small test batches.
 #     json.dump(index, f)
 with open("output.txt", "w") as f:
     f.write("# of Indexed Documents: " + str(total_pages) + "\n")
@@ -85,7 +85,7 @@ with open("output.txt", "r") as f:
         print(line, end="")
     print()
 
-# print(index)
+# print(index) # Jon: I commented this out because the output is too large
 
 
 
