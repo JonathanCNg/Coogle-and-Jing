@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from scraper import is_valid
 
 directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
+directs = ["www-db_ics_uci_edu"]
 
 for i in range(len(directs)):
     directs[i] = "DEV/" + directs[i]
@@ -27,13 +28,14 @@ for d in directs:
             soup = BeautifulSoup(data['content'], 'html.parser').get_text(' ', strip=True)
             tokens = nltk.word_tokenize(soup)
 
-            if token not in page_count:
-                page_count[token] = {url}
-            else:
-                page_count[token].add(url)
-
             for token in tokens:
                 token = ps.stem(token)
+
+                if token not in page_count:
+                    page_count[token] = {url}
+                else:
+                    page_count[token].add(url)
+
                 if token in index.keys():
                     if url in index[token].keys():
                         index[token][url] += 1
@@ -46,13 +48,18 @@ for d in directs:
             print("skipping", url)
     print(d, "is done")
 
+
+
 for token in index:
     idf = 1/len(page_count[token])
-    for url in token:
+    for url in index[token]:
         index[token][url] = index[token][url]*idf
 
 file = open("index", "wb")
-pickle.dump(index, file)
+# pickle.dump(index, file)
+with open("delete_me.json", "w") as f:
+    json.dump(index, f)
+
 file.close()
 # print(index)
 
