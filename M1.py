@@ -64,10 +64,10 @@ for d in directs:
     print()
 
 # TODO: uncomment this after MS1 ("for MS1, add only the term frequency" )
-# for token in index:
-#     idf = math.log(total_pages/len(page_count[token]))
-#     for url in index[token]:
-#         index[token][url] = index[token][url]/word_count[url]*idf
+for token in index:
+    idf = math.log(total_pages/len(page_count[token]))
+    for url in index[token]:
+        index[token][url] = index[token][url]/word_count[url]*idf
 
 file = open("index", "wb")
 pickle.dump(index, file)
