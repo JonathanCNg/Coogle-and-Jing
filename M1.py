@@ -65,7 +65,7 @@ for d in directs:
 
 # TODO: uncomment this after MS1 ("for MS1, add only the term frequency" )
 for token in index:
-    idf = math.log(total_pages/len(page_count[token]))
+    idf = math.log(total_pages/len(index[token]))
     for url in index[token]:
         index[token][url] = index[token][url]/word_count[url]*idf
 
