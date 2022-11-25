@@ -6,6 +6,7 @@ DEV/
 index
 __pycache__
 delete_me.json
+delete_me.html
 output.txt
 *.zip
 *.pdf
