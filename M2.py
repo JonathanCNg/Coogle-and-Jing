@@ -9,9 +9,7 @@ def time_convert(sec):
   sec = sec % 60
   hours = mins // 60
   mins = mins % 60
-  ms = sec / 1000
-#   return "Time Lapsed = {0} sec".format(sec)
-  return "Time Lapsed = {0} ms".format(ms)
+  print("Time Lapsed = {0}:{1}:{2}".format(int(hours),int(mins),sec))
 file = open("index", "rb")
 index = pickle.load(file)
 file.close()
@@ -32,21 +30,25 @@ def gfg():
 
             # getting input with name = lname in HTML form
             tokens = nltk.word_tokenize(query)
+
             urls = []
             ps = nltk.stem.PorterStemmer()
             for token in tokens:
                 t = ps.stem(token)
-                urls.append(set(index[t].keys()))
-            url_int = set.intersection(*urls) #<-- finds intersection of all list in URLs
-            url_int_sorted = sorted(url_int, key = lambda url:sum([index[ps.stem(token)][url] for token in tokens]), reverse=True)
-            
-            output = ""
-            for i, url in enumerate(url_int_sorted[0:5]):
-                output += "<p> #" + str(i+1) + " | <a href=\"" + url + "\" target=\"_blank\">"+ url + "</a></p>"
-            
-            time_html = "<p>" + time_convert(time.time() - start_time) + "</p>"
+                if t in index:
+                    urls.append(set(index[t].keys()))
+            if len(urls) != 0:
+                url_int = set.intersection(*urls) #<-- finds intersection of all list in URLs
+                url_int_sorted = sorted(url_int, key = lambda url:sum([index[ps.stem(token)][url] for token in tokens]), reverse=True)
+                
+                output = ""
+                url_len = len(url_int_sorted)
+                for i, url in enumerate(url_int_sorted[0:min(5,url_len)]):
+                    output += "<p> #" + str(i+1) + " | <a href=\"" + url + "\" target=\"_blank\">"+ url + "</a></p>"
+                
+                time_html = "<p>" + time_convert(time.time() - start_time) + "</p>"
 
-            return render_template("form.html") + time_html + output
+                return render_template("form.html") + time_html + output
 
         # return "Your name is "+first_name + last_name
     return render_template("form.html")

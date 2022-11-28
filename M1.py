@@ -98,27 +98,36 @@ for d in directs:
             if is_valid(url):
                 is_dup = False
                 # TODO: What happens when we use BeautifulSoup on non-HTML? 🤔
-                soup = BeautifulSoup(data['content'], 'html.parser').get_text(' ', strip=True)
+                soup = BeautifulSoup(data['content'], 'html.parser')
+                soup_text = soup.get_text(' ', strip=True)
                 # TODO: Make tokenizer than works only for alphanumeric (NLTK includes symbols and contractions)
-                tokens = nltk.word_tokenize(soup)
-                checksum = sum(ord(char) for char in "".join(tokens)) #checks for dupes
-                if checksum in checksums.keys():
-                    is_dup = True
-                if is_dup == False:
-                    checksums[checksum] = url
-                    word_count[url] = len(tokens)
+                tokens = nltk.word_tokenize(soup_text)
+                word_count[url] = len(tokens)
+                for token in tokens:
+                    token = ps.stem(token)
 
-                    for token in tokens:
-                        token = ps.stem(token)
-
-                        if token in index.keys():
-                            if url in index[token].keys():
-                                index[token][url] += 1
-                            else:
-                                index[token][url] = 1
+                    if token in index.keys():
+                        if url in index[token].keys():
+                            index[token][url] += 1
                         else:
-                            index[token] = {url:1}
-                
+                            index[token][url] = 1
+                    else:
+                        index[token][url] = 1
+                else:
+                    index[token] = {url:1}
+
+                # For important words
+                important_tags = {'title':5, 'h1':4, 'h2':3, 'h3':2, 'b':1, 'strong':1}
+                for tag in important_tags:
+                    important = soup.find_all(tag)
+                    for item in important:
+                        item_text = item.get_text(' ', strip=True)
+                        item_tokens = nltk.word_tokenize(item_text)
+                        for token in item_tokens:
+                            token = ps.stem(token)
+                            index[token][url] += important_tags[tag]
+
+
             counter += 1
             print("\r" + "{:<50}".format(d) + "| ", end="")
             out_of_10 = counter*10//len(files)
@@ -129,6 +138,8 @@ for d in directs:
             print("| " + str(counter) + "/" + str(len(files)), end="")
         except Exception as e:
             print("EXCEPTION THROWN: Tried", url, "got", e)
+
+        
     print()
 
 # TODO: uncomment this after MS1 ("for MS1, add only the term frequency" )
