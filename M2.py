@@ -9,10 +9,8 @@ def time_convert(sec):
   sec = sec % 60
   hours = mins // 60
   mins = mins % 60
-  print("Time Lapsed = {0}:{1}:{2}".format(int(hours),int(mins),sec))
-file = open("index", "rb")
-index = pickle.load(file)
-file.close()
+  print("Time Lapsed = {0} secs".format(sec))
+
 
 # Flask constructor
 app = Flask(__name__)  
@@ -29,26 +27,36 @@ def gfg():
             start_time = time.time()
 
             # getting input with name = lname in HTML form
-            tokens = nltk.word_tokenize(query)
+            query_tokens = list(set(sorted(nltk.word_tokenize(query))))
 
-            urls = []
+            urls = {}
             ps = nltk.stem.PorterStemmer()
-            for token in tokens:
-                t = ps.stem(token)
-                if t in index:
-                    urls.append(set(index[t].keys()))
-            if len(urls) != 0:
-                url_int = set.intersection(*urls) #<-- finds intersection of all list in URLs
-                url_int_sorted = sorted(url_int, key = lambda url:sum([index[ps.stem(token)][url] for token in tokens]), reverse=True)
-                
-                output = ""
-                url_len = len(url_int_sorted)
-                for i, url in enumerate(url_int_sorted[0:min(5,url_len)]):
-                    output += "<p> #" + str(i+1) + " | <a href=\"" + url + "\" target=\"_blank\">"+ url + "</a></p>"
-                
-                time_html = "<p>" + time_convert(time.time() - start_time) + "</p>"
+            index = None
+            index_a = None
+            for q_token in query_tokens: 
+                q_token = ps.stem(q_token)
 
-                return render_template("form.html") + time_html + output
+                # Opens the right index!
+                if q_token[0] != index_a:
+                    index_a = q_token[0]
+                    with open("index/index" + q_token[0], "rb") as f:
+                        pickle.dump(index, f)
+                
+                # Add them points 😎
+                if q_token in index:
+                    for url in index[q_token].keys():
+                        urls[url] = urls.get(url, 0) + index[q_token][url]
+
+            # Sort by points!
+            urls_sorted = sorted(urls.items(), key=urls[1], reverse=True)
+            
+            output = ""
+            for i, url in enumerate(urls_sorted[0:min(5,len(urls_sorted))]):
+                output += "<p> #" + str(i+1) + " | <a href=\"" + url + "\" target=\"_blank\">"+ url + "</a></p>"
+            
+            time_html = "<p>" + time_convert(time.time() - start_time) + "</p>"
+
+            return render_template("form.html") + time_html + output
 
         # return "Your name is "+first_name + last_name
     return render_template("form.html")
