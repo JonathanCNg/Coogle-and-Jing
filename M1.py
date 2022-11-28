@@ -6,14 +6,70 @@ import math
 from bs4 import BeautifulSoup
 from scraper import is_valid
 from collections import OrderedDict
+from shutil import rmtree
+
+
+def dump_index(index):
+    print("Emptying Index in Memory")
+    keys = sorted(index.keys())
+    aindex = {}
+    for i, key in enumerate(keys):
+        if key[0] in alpha:
+            if len(aindex) == 0:
+                f = open("index/index"+key[0], 'rb')
+                aindex = pickle.load(f)
+                f.close()
+            if key not in aindex:
+                aindex[key] = index[key]
+            else:
+                for k, v in index[key].items():
+                    aindex[key][k] = v
+            if (i+1) < len(keys):
+                if keys[i+1][0] != key[0]:
+                    f = open("index/index"+key[0], 'wb')
+                    pickle.dump(aindex, f)
+                    f.close()
+                    aindex = {}
+            else:
+                f = open("index/index"+key[0], 'wb')
+                pickle.dump(aindex, f)
+                f.close()
+                aindex = {}
+
+
+
+    # for key in keys:
+    #     if key[0] in alpha:
+    #         f = open("index/index"+key[0], 'rb')
+    #         aindex = pickle.load(f)
+    #         f.close()
+    #         if key not in aindex:
+    #             aindex[key] = index[key]
+    #         else:
+    #             for k, v in index[key].items():
+    #                 aindex[k] = v
+    #         f = open("index/index"+key[0], 'wb')
+    #         pickle.dump(aindex, f)
+    #         f.close()
+
 
 # Jon: Feel free to comment in whichever one you want. They're just different collections of domains, some smaller so that w can test easily.
-# directs = os.listdir("DEV")
-# directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
-directs = ["www_informatics_uci_edu"]
+directs = os.listdir("DEV")
+if os.path.exists("index"):
+    rmtree("index")
 
+# directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
+# directs = ["www_cs_uci_edu"]
 for i in range(len(directs)):
     directs[i] = "DEV/" + directs[i]
+
+os.makedirs("./index/")
+alpha = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+for a in alpha:
+    f = open("index/index"+a, 'wb')
+    edict = {}
+    pickle.dump(edict, f)
+    f.close()
 
 index = {}
 total_pages = 0
@@ -29,6 +85,9 @@ for d in directs:
     total_pages += len(files)
     checksums = {}
     for file in files:
+        if len(index) >= 10000:
+            dump_index(index)
+            index = {}
         fname = os.fsdecode(file)
         f = open(d+"/"+fname, "r")
         data = json.load(f)
@@ -73,19 +132,47 @@ for d in directs:
     print()
 
 # TODO: uncomment this after MS1 ("for MS1, add only the term frequency" )
-for token in index:
-    idf = math.log(total_pages/len(index[token]))
-    for url in index[token]:
-        index[token][url] = index[token][url]/word_count[url]*idf
-# alpha = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-# for l in alpha:
-#     i = 0
 
-file = open("index", "wb")
-pickle.dump(index, file)
-file.close()
+# alpha = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+# i=0
+# keys = sorted(index.keys())
+# os.makedirs("./index/")
+# for a in alpha:
+#     aindex = {}
+#     while keys[i][0] == a:
+#         aindex[keys[i]] = index[keys[i]]
+#         i+=1
+#     f = open("index/index"+a, 'wb')
+#     pickle.dump(aindex, f)
+#     f.close()
+
+
+# file = open("index", "wb")
+# pickle.dump(index, file)
+# file.close()
 # with open("delete_me.json", "w") as f: # Jon: I commented this out because the output is so large, we cannot even view it. Feel free to uncomment for small test batches.
 #     json.dump(index, f)
+
+dump_index(index)
+
+for a in alpha:
+    match = True
+    f = open("index/index"+a, "rb")
+    index = pickle.load(f)
+    f.close()
+    for token in index.keys():
+        if token[0] != a:
+            match = False
+        if type(index[token]) is dict:
+            idf = math.log(total_pages/len(index[token]))
+            for url in index[token]:
+                index[token][url] = index[token][url]/word_count[url]*idf
+    f = open("index/index"+a, "wb")
+    pickle.dump(index, f)
+    f.close()
+    print("file has all", a, ":", match)
+    if match == False:
+        print(index.keys())
 with open("output.txt", "w") as f:
     f.write("# of Indexed Documents: " + str(total_pages) + "\n")
     f.write("# of Unique Tokens: " + str(len(index)) + "\n")
