@@ -9,9 +9,7 @@ def time_convert(sec):
   sec = sec % 60
   hours = mins // 60
   mins = mins % 60
-  ms = sec / 1000
-#   return "Time Lapsed = {0} sec".format(sec)
-  return "Time Lapsed = {0} ms".format(ms)
+  print("Time Lapsed = {0}:{1}:{2}".format(int(hours),int(mins),sec))
 file = open("index", "rb")
 index = pickle.load(file)
 file.close()
