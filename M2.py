@@ -9,8 +9,17 @@ def time_convert(sec):
   sec = sec % 60
   hours = mins // 60
   mins = mins % 60
-  print("Time Lapsed = {0} secs".format(sec))
+  return ("Time Lapsed = {0} secs".format(sec))
 
+alpha = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+index = {}
+for a in alpha:
+    with open("index/index" + a, "rb") as f:
+        temp = pickle.load(f)
+        for token in temp.keys():
+            index[token] = {}
+            for url in temp[token].keys():
+                index[token][url] = temp[token][url]
 
 # Flask constructor
 app = Flask(__name__)  
@@ -31,28 +40,20 @@ def gfg():
 
             urls = {}
             ps = nltk.stem.PorterStemmer()
-            index = None
-            index_a = None
             for q_token in query_tokens: 
                 q_token = ps.stem(q_token)
 
-                # Opens the right index!
-                if q_token[0] != index_a:
-                    index_a = q_token[0]
-                    with open("index/index" + q_token[0], "rb") as f:
-                        pickle.dump(index, f)
-                
                 # Add them points 😎
                 if q_token in index:
                     for url in index[q_token].keys():
                         urls[url] = urls.get(url, 0) + index[q_token][url]
 
             # Sort by points!
-            urls_sorted = sorted(urls.items(), key=urls[1], reverse=True)
+            urls_sorted = sorted(urls.items(), key=lambda item: item[1], reverse=True)
             
             output = ""
             for i, url in enumerate(urls_sorted[0:min(5,len(urls_sorted))]):
-                output += "<p> #" + str(i+1) + " | <a href=\"" + url + "\" target=\"_blank\">"+ url + "</a></p>"
+                output += "<p> #" + str(i+1) + " | <a href=\"" + url[0] + "\" target=\"_blank\">"+ url[0] + "</a></p>"
             
             time_html = "<p>" + time_convert(time.time() - start_time) + "</p>"
 
