@@ -84,39 +84,40 @@ for d in directs:
                 is_dup = False
                 # TODO: What happens when we use BeautifulSoup on non-HTML? 🤔
                 soup = BeautifulSoup(data['content'], 'html.parser')
-                soup_text = soup.get_text(' ', strip=True)
-                # TODO: Make tokenizer than works only for alphanumeric (NLTK includes symbols and contractions)
-                tokens = nltk.word_tokenize(soup_text)
-                word_count[url] = len(tokens)
-                for token in tokens:
-                    token = ps.stem(token)
+                if soup.find(): # Checks if there's any html in the file lol
+                    soup_text = soup.get_text(' ', strip=True)
+                    # TODO: Make tokenizer than works only for alphanumeric (NLTK includes symbols and contractions)
+                    tokens = nltk.word_tokenize(soup_text)
+                    word_count[url] = len(tokens)
+                    for token in tokens:
+                        token = ps.stem(token)
 
-                    if token not in index.keys():
-                        index[token] = {}
-                    
-                    if url in index[token].keys():
-                        index[token][url] += 1
-                    else:
-                        index[token][url] = 1
-                        dump_countdown -= 1
+                        if token not in index.keys():
+                            index[token] = {}
                         
-                else:
-                    index[token] = {url:1}
+                        if url in index[token].keys():
+                            index[token][url] += 1
+                        else:
+                            index[token][url] = 1
+                            dump_countdown -= 1
+                            
+                    else:
+                        index[token] = {url:1}
 
-                # For important words
-                important_tags = {'title':5, 'h1':4, 'h2':3, 'h3':2, 'b':1, 'strong':1}
-                for tag in important_tags:
-                    important = soup.find_all(tag)
-                    for item in important:
-                        item_text = item.get_text(' ', strip=True)
-                        item_tokens = nltk.word_tokenize(item_text)
-                        for token in item_tokens:
-                            token = ps.stem(token)
-                            if token not in index:
-                                index[token] = {}
-                            if url not in index[token]:
-                                index[token][url] = 0
-                            index[token][url] += important_tags[tag]
+                    # For important words
+                    important_tags = {'title':5, 'h1':4, 'h2':3, 'h3':2, 'b':1, 'strong':1}
+                    for tag in important_tags:
+                        important = soup.find_all(tag)
+                        for item in important:
+                            item_text = item.get_text(' ', strip=True)
+                            item_tokens = nltk.word_tokenize(item_text)
+                            for token in item_tokens:
+                                token = ps.stem(token)
+                                if token not in index:
+                                    index[token] = {}
+                                if url not in index[token]:
+                                    index[token][url] = 0
+                                index[token][url] += important_tags[tag]
 
 
             counter += 1
