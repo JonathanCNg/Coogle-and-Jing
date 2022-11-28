@@ -7,6 +7,14 @@ from bs4 import BeautifulSoup
 from scraper import is_valid
 from collections import OrderedDict
 from shutil import rmtree
+import time
+
+def time_convert(sec):
+  mins = sec // 60
+  sec = sec % 60
+  hours = mins // 60
+  mins = mins % 60
+  print("Time Lapsed = {0}:{1}:{2}".format(int(hours), int(mins), sec))
 
 
 def dump_index(index):
@@ -35,6 +43,7 @@ def dump_index(index):
                 f.close()
                 al_index = {}
 
+start_time = time.time()
 # Jon: Feel free to comment in whichever one you want. They're just different collections of domains, some smaller so that w can test easily.
 directs = os.listdir("DEV")
 # directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
@@ -136,6 +145,8 @@ for d in directs:
 
 dump_index(index)
 
+time_convert(time.time() - start_time)
+
 for a in alpha:
     match = True
     f = open("index/index"+a, "rb")
@@ -147,7 +158,10 @@ for a in alpha:
         if type(index[token]) is dict:
             idf = math.log(total_pages/len(index[token]))
             for url in index[token]:
-                index[token][url] = index[token][url]/word_count[url]*idf
+                if word_count[url] == 0:
+                    index[token][url] = 0
+                else:
+                    index[token][url] = index[token][url]/word_count[url]*idf
     f = open("index/index"+a, "wb")
     pickle.dump(index, f)
     f.close()
@@ -164,5 +178,7 @@ with open("output.txt", "r") as f:
     for line in f:
         print(line, end="")
     print()
+
+time_convert(time.time() - start_time)
 
 
