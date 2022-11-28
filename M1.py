@@ -10,56 +10,38 @@ from shutil import rmtree
 
 
 def dump_index(index):
-    print("Emptying Index in Memory")
+    print("\tEmptying Index in Memory")
     keys = sorted(index.keys())
-    aindex = {}
+    al_index = {}
     for i, key in enumerate(keys):
         if key[0] in alpha:
-            if len(aindex) == 0:
+            # Open disk index to memory!
+            if len(al_index) == 0:
                 f = open("index/index"+key[0], 'rb')
-                aindex = pickle.load(f)
+                al_index = pickle.load(f)
                 f.close()
-            if key not in aindex:
-                aindex[key] = index[key]
+            
+            # Append to disk index loaded to memory!
+            if key not in al_index:
+                al_index[key] = index[key]
             else:
                 for k, v in index[key].items():
-                    aindex[key][k] = v
-            if (i+1) < len(keys):
-                if keys[i+1][0] != key[0]:
-                    f = open("index/index"+key[0], 'wb')
-                    pickle.dump(aindex, f)
-                    f.close()
-                    aindex = {}
-            else:
+                    al_index[key][k] = v
+            
+            # Save changes to disk index!
+            if (i+1) >= len(keys) or keys[i+1][0] != key[0]:
                 f = open("index/index"+key[0], 'wb')
-                pickle.dump(aindex, f)
+                pickle.dump(al_index, f)
                 f.close()
-                aindex = {}
-
-
-
-    # for key in keys:
-    #     if key[0] in alpha:
-    #         f = open("index/index"+key[0], 'rb')
-    #         aindex = pickle.load(f)
-    #         f.close()
-    #         if key not in aindex:
-    #             aindex[key] = index[key]
-    #         else:
-    #             for k, v in index[key].items():
-    #                 aindex[k] = v
-    #         f = open("index/index"+key[0], 'wb')
-    #         pickle.dump(aindex, f)
-    #         f.close()
-
+                al_index = {}
 
 # Jon: Feel free to comment in whichever one you want. They're just different collections of domains, some smaller so that w can test easily.
 directs = os.listdir("DEV")
+# directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
+# directs = ["www_cs_uci_edu"]
 if os.path.exists("index"):
     rmtree("index")
 
-# directs = ["www-db_ics_uci_edu", "www_informatics_uci_edu", "www_cs_uci_edu"]
-# directs = ["www_cs_uci_edu"]
 for i in range(len(directs)):
     directs[i] = "DEV/" + directs[i]
 
@@ -78,6 +60,8 @@ ps = nltk.stem.PorterStemmer()
 
 print("\n" + "{:<50}".format("URL") + "PROGRESS")
 
+
+dump_countdown = 1000000   # Decrements by 1 each time a new url is added to a token, which is a good proxy for the size of the index
 for d in directs:
     directory = os.fsencode(d)
     counter = 0
@@ -85,9 +69,10 @@ for d in directs:
     total_pages += len(files)
     checksums = {}
     for file in files:
-        if len(index) >= 10000:
+        if dump_countdown <= 0:
             dump_index(index)
             index = {}
+            dump_countdown = 1000000
         fname = os.fsdecode(file)
         f = open(d+"/"+fname, "r")
         data = json.load(f)
@@ -106,13 +91,15 @@ for d in directs:
                 for token in tokens:
                     token = ps.stem(token)
 
-                    if token in index.keys():
-                        if url in index[token].keys():
-                            index[token][url] += 1
-                        else:
-                            index[token][url] = 1
+                    if token not in index.keys():
+                        index[token] = {}
+                    
+                    if url in index[token].keys():
+                        index[token][url] += 1
                     else:
                         index[token][url] = 1
+                        dump_countdown -= 1
+                        
                 else:
                     index[token] = {url:1}
 
@@ -125,6 +112,10 @@ for d in directs:
                         item_tokens = nltk.word_tokenize(item_text)
                         for token in item_tokens:
                             token = ps.stem(token)
+                            if token not in index:
+                                index[token] = {}
+                            if url not in index[token]:
+                                index[token][url] = 0
                             index[token][url] += important_tags[tag]
 
 
@@ -137,32 +128,10 @@ for d in directs:
                 print("  ", end="")
             print("| " + str(counter) + "/" + str(len(files)), end="")
         except Exception as e:
-            print("EXCEPTION THROWN: Tried", url, "got", e)
+            print("\nEXCEPTION THROWN: Tried", url, "got", type(e).__name__, ":", e.args)
 
         
     print()
-
-# TODO: uncomment this after MS1 ("for MS1, add only the term frequency" )
-
-# alpha = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-# i=0
-# keys = sorted(index.keys())
-# os.makedirs("./index/")
-# for a in alpha:
-#     aindex = {}
-#     while keys[i][0] == a:
-#         aindex[keys[i]] = index[keys[i]]
-#         i+=1
-#     f = open("index/index"+a, 'wb')
-#     pickle.dump(aindex, f)
-#     f.close()
-
-
-# file = open("index", "wb")
-# pickle.dump(index, file)
-# file.close()
-# with open("delete_me.json", "w") as f: # Jon: I commented this out because the output is so large, we cannot even view it. Feel free to uncomment for small test batches.
-#     json.dump(index, f)
 
 dump_index(index)
 
@@ -194,8 +163,5 @@ with open("output.txt", "r") as f:
     for line in f:
         print(line, end="")
     print()
-
-# print(index) # Jon: I commented this out because the output is too large
-
 
 
