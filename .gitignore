@@ -5,8 +5,9 @@ DEV/
 # Other
 index
 __pycache__
-delete_me.json
-delete_me.html
+index2
 output.txt
 *.zip
 *.pdf
+shelf_file.*
+delete_me.*
