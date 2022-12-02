@@ -10,4 +10,4 @@ output.txt
 *.zip
 *.pdf
 shelf_file.*
-delete_me.*
+delete_me*.*
