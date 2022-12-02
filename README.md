@@ -22,7 +22,11 @@ It's like Google and Bing, except by Cole and Jon c:
 3. Run `pip install -r requirements.txt`
 4. Press `Ctrl + Shift + P` and select `Python: Select Interpreter` and select the one that says `venv`
 
+### How to use?
 
+1. Run `main_indexer.py`
+2. Run `main_searcher.py`
+3. Open the live server and have fun!
 
 ## Notes
 
