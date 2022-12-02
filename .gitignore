@@ -3,9 +3,8 @@
 DEV/
 
 # Other
-index
+index*
 __pycache__
-index2
 output.txt
 *.zip
 *.pdf
