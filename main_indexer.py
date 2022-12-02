@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from scraper import is_valid
 from collections import OrderedDict
 from shutil import rmtree
+import urllib.parse
 import time
 
 def time_convert(sec):
@@ -114,20 +115,20 @@ for d in directs:
                         index[token] = {url:1}
 
                     # For important words
-                    important_tags = {'title':5, 'h1':4, 'h2':3, 'h3':2, 'b':1, 'strong':1}
+                    important_tags = {'title':.5, 'h1':.2, 'h2':.15, 'h3':.1, 'b':.01, 'strong':.01}
                     for tag in important_tags:
                         important = soup.find_all(tag)
                         for item in important:
                             item_text = item.get_text(' ', strip=True)
-                            item_tokens = nltk.word_tokenize(item_text)
+                            item_tokens = set(nltk.word_tokenize(item_text))
                             for token in item_tokens:
                                 token = ps.stem(token)
                                 if token not in index:
                                     index[token] = {}
                                 if url not in index[token]:
                                     index[token][url] = 0
-                                index[token][url] += important_tags[tag]
-
+                                boost_amount = word_count[url]*important_tags[tag]
+                                index[token][url] += boost_amount
 
             counter += 1
             print("\r" + "{:<50}".format(d) + "| ", end="")
@@ -161,7 +162,7 @@ for a in alpha:
                 if word_count[url] == 0:
                     index[token][url] = 0
                 else:
-                    index[token][url] = index[token][url]/word_count[url]*idf
+                    index[token][url] = index[token][url]/(word_count[url]*1.5)*idf
     f = open("index/index"+a, "wb")
     pickle.dump(index, f)
     f.close()
@@ -171,13 +172,49 @@ for a in alpha:
 with open("output.txt", "w") as f:
     f.write("# of Indexed Documents: " + str(total_pages) + "\n")
     f.write("# of Unique Tokens: " + str(len(index)) + "\n")
-    f.write("Size of Index on Disk: " + str(os.path.getsize("index")//1000) + " KB")
+    # f.write("Size of Index on Disk: " + str(os.path.getsize("index")//1000) + " KB")
 
 with open("output.txt", "r") as f:
     print("\n ~ STATS ~ ")
     for line in f:
         print(line, end="")
     print()
+
+
+### Pasted from our 'delete_me.py' on 12/1/2022 @ 3:50 PM START
+len_1_index = {}
+for a in alpha:
+    print(a)
+    temp = {}
+    # Read existing picle indicies
+    with open("index/index" + a, "rb") as f:
+        temp = pickle.load(f)
+    char_2_indices = {b:{} for b in alpha}
+    for token in temp.keys():
+        if token.isalnum():
+            if len(token) == 1:
+                len_1_index[token] = {}
+            elif len(token) >= 2:
+                if token[1] in alpha:
+                    char_2_indices[token[1]][token] = {}
+                else:
+                    continue
+            seen_urls = set()
+            for url in temp[token].keys():
+                defragged_url = urllib.parse.urldefrag(url)[0]
+                if defragged_url not in seen_urls:
+                    seen_urls.add(defragged_url)
+
+                    if len(token) == 1:
+                        len_1_index[token][defragged_url] = temp[token][url]
+                    elif len(token) >= 2:
+                        char_2_indices[token[1]][token][defragged_url] = temp[token][url]
+    for b in alpha:
+        with open("index2/index_" + a + b, "wb") as fab:
+            pickle.dump(char_2_indices[b], fab, protocol=pickle.HIGHEST_PROTOCOL)
+### Pasted from our 'delete_me.py' on 12/1/2022 @ 3:50 PM END
+
+
 
 time_convert(time.time() - start_time)
 
