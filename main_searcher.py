@@ -1,4 +1,6 @@
+import json
 import pickle
+import shelve
 import math
 import nltk
 from flask import Flask, request, render_template # https://www.geeksforgeeks.org/retrieving-html-from-data-using-flask/
@@ -9,44 +11,66 @@ def time_convert(sec):
   sec = sec % 60
   hours = mins // 60
   mins = mins % 60
-  return ("Time Lapsed = {0} secs".format(sec))
-
-alpha = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-index = {}
-for a in alpha:
-    with open("index/index" + a, "rb") as f:
-        temp = pickle.load(f)
-        for token in temp.keys():
-            index[token] = {}
-            for url in temp[token].keys():
-                index[token][url] = temp[token][url]
+  return ("Time Lapsed = {0:.3f} secs".format(sec))
 
 # Flask constructor
 app = Flask(__name__)  
  
+
+file = shelve.open("shelf_file")
+
 # A decorator used to tell the application
 # which URL is associated function
 @app.route('/', methods =["GET", "POST"])
 def gfg():
+    start_time = time.time()
     if request.method == "POST":
         # getting input with name = fname in HTML form
         query = request.form.get("query")
         
         if query != "":
-            start_time = time.time()
+            ps = nltk.stem.PorterStemmer()
 
             # getting input with name = lname in HTML form
             query_tokens = list(set(sorted(nltk.word_tokenize(query))))
 
-            urls = {}
-            ps = nltk.stem.PorterStemmer()
-            for q_token in query_tokens: 
-                q_token = ps.stem(q_token)
+            # Separate tokens into single char and multi char
+            single_char_tokens = []
+            multi_char_tokens = []
+            for token in query_tokens:
+                stemmed_token = ps.stem(token)
+                if len(stemmed_token) == 1:
+                    single_char_tokens.append(stemmed_token)
+                elif len(stemmed_token) >= 2:
+                    multi_char_tokens.append(stemmed_token)
 
+            # Declare important variables!
+            urls = {}
+            index = {}
+
+            # Add points for single char tokens
+            if len(single_char_tokens) > 0:
+                with open("index2/index_singles", "rb") as f:
+                    index = pickle.load(f)
+                for q_token in single_char_tokens:
+                    if q_token in index:
+                        for url in index[q_token].keys():
+                            urls[url] = float(urls.get(url, 0)) + float(index[q_token][url])
+
+            # For multi char tokens...
+            index_a = None
+            for q_token in multi_char_tokens: 
+                
+                # Opens the right index!
+                if q_token[0:2] != index_a:
+                    index_a = q_token[0:2]
+                    with open("index2/index_" + index_a, "rb") as f:
+                        index = pickle.load(f) 
+                
                 # Add them points 😎
                 if q_token in index:
                     for url in index[q_token].keys():
-                        urls[url] = urls.get(url, 0) + index[q_token][url]
+                        urls[url] = float(urls.get(url, 0)) + float(index[q_token][url])
 
             # Sort by points!
             urls_sorted = sorted(urls.items(), key=lambda item: item[1], reverse=True)
